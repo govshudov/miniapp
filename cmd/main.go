@@ -22,9 +22,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	defer DownMigrations(db, migrationsPath)
-
 	r := handlers.Manager(db)
 	err = http.ListenAndServe(":8000", r)
 	if err != nil {
@@ -32,23 +29,16 @@ func main() {
 	}
 }
 func RunMigrations(db *sql.DB, migrationsDir string) error {
+	_, err := db.Exec(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`)
+	if err != nil {
+		log.Fatalf("❌ Failed to reset schema: %v", err)
+	}
 	if err := goose.SetDialect("postgres"); err != nil {
 		return fmt.Errorf("failed to set dialect: %w", err)
 	}
 
 	if err := goose.Up(db, migrationsDir); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
-	}
-
-	return nil
-}
-func DownMigrations(db *sql.DB, migrationsDir string) error {
-	if err := goose.SetDialect("postgres"); err != nil {
-		fmt.Printf("failed to set dialect: %v", err)
-	}
-
-	if err := goose.Down(db, migrationsDir); err != nil {
-		fmt.Errorf("failed to run migrations: %w", err)
 	}
 
 	return nil
