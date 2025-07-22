@@ -62,7 +62,9 @@ func (repository *Repository) UpsertClient(client models.Client) error {
 }
 func (repository *Repository) GetOwnClients(id int) ([]models.Client, error) {
 	var clients []models.Client
-	q := `select user_id,name,passport,usd,eur,currency from clients where user_id = $1`
+	q := `select user_id,name,passport,usd,eur,currency,users.username from clients 
+			left join users on users.id = clients.user_id
+			where user_id = $1 order by created_at desc`
 	rows, err := repository.client.Query(q, id)
 	if err != nil {
 		return nil, err
@@ -70,7 +72,7 @@ func (repository *Repository) GetOwnClients(id int) ([]models.Client, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var client models.Client
-		err = rows.Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency)
+		err = rows.Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency, &client.ReceivedName)
 		if err != nil {
 			return nil, err
 		}
@@ -81,21 +83,27 @@ func (repository *Repository) GetOwnClients(id int) ([]models.Client, error) {
 }
 func (repository *Repository) SearchClient(passport string) (models.Client, error) {
 	var client models.Client
-	q := `select user_id,name,passport,usd,eur,currency from clients where passport = $1 limit 1`
-	err := repository.client.QueryRow(q, passport).Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency)
+	q := `select user_id,name,passport,usd,eur,currency,users.username from clients
+			left join users on users.id = clients.user_id
+			where passport = $1 limit 1`
+	err := repository.client.QueryRow(q, passport).Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency, &client.ReceivedName)
 	if err != nil {
 		return client, err
 	}
 
 	return client, nil
 }
-func (repository *Repository) GetUserData(username string) (string, error) {
-	var password string
-	q := `select password from users where username=$1 limit 1`
-	err := repository.client.QueryRow(q, username).Scan(&password)
+func (repository *Repository) GetUserData(username string) (int, string, error) {
+	var (
+		userId   int
+		password string
+	)
+
+	q := `select id,password from users where username=$1 limit 1`
+	err := repository.client.QueryRow(q, username).Scan(&userId, &password)
 	if err != nil {
-		return "", err
+		return 0, "", err
 	}
 
-	return password, nil
+	return userId, password, nil
 }

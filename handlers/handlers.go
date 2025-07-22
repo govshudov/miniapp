@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"io"
 	"miniapp/models"
 	"net/http"
@@ -75,6 +76,9 @@ func (handler *HTTPHandler) SearchClients(w http.ResponseWriter, r *http.Request
 	fmt.Println(dto)
 	clients, err := handler.repository.SearchClient(dto.Passport)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" || err.Error() == pgx.ErrNoRows.Error() {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -96,7 +100,7 @@ func (handler *HTTPHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errData.Error(), http.StatusBadRequest)
 		return
 	}
-	password, err := handler.repository.GetUserData(dto.UserName)
+	userId, password, err := handler.repository.GetUserData(dto.UserName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -106,7 +110,7 @@ func (handler *HTTPHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	handler.writeJSON(w, "login successfully", http.StatusOK)
+	handler.writeJSON(w, userId, http.StatusOK)
 }
 
 func (handler *HTTPHandler) writeJSON(w http.ResponseWriter, data interface{}, statusCode int) {
