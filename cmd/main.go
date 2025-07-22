@@ -42,15 +42,16 @@ func RunMigrations(db *sql.DB, migrationsDir string) error {
 
 func initDb() (*sql.DB, error) {
 	var err error
-	dbHost := "localhost"
-	dbPort := "5432"
-	dbUser := "postgres"
-	dbPassword := ""
-	dbName := "postgres"
-	connectTimeOut := 5
+	//dbHost := "localhost"
+	//dbPort := "5432"
+	//dbUser := "postgres"
+	//dbPassword := ""
+	//dbName := "postgres"
+	//connectTimeOut := 5
 
-	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable connect_timeout=%d",
-		dbHost, dbPort, dbUser, dbPassword, dbName, connectTimeOut)
+	//connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable connect_timeout=%d",
+	//	dbHost, dbPort, dbUser, dbPassword, dbName, connectTimeOut)
+	connStr := "postgres://postgres_y6xc_user:1s6VRgCIWEgkMPOo7ztvCmqYxWiUd5AB@dpg-d1vil0re5dus739qkqs0-a:5432/postgres_y6xc"
 	for i := 0; i < 3; i++ {
 		db, err := sql.Open("postgres", connStr)
 		if err != nil {
