@@ -43,8 +43,8 @@ func (repository *Repository) UpsertClient(client models.Client) error {
 		} else {
 			isPlus = true
 		}
-		q = `update clients set(name,passport,usd,eur,currency)=($1,$2,$3,$4,$5)`
-		_, err = tx.Exec(q, client.Name, client.Passport, client.USD, client.EUR, client.Currency)
+		q = `update clients set(name,usd,eur,currency)=($1,$2,$3,$4)`
+		_, err = tx.Exec(q, client.Name, client.USD, client.EUR, client.Currency)
 		if err != nil {
 			return err
 		}
