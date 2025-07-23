@@ -62,7 +62,7 @@ func (repository *Repository) UpsertClient(client models.Client) error {
 }
 func (repository *Repository) GetOwnClients(id int) ([]models.Client, error) {
 	var clients []models.Client
-	q := `select user_id,name,passport,usd,eur,currency,users.username from clients 
+	q := `select user_id,name,passport,usd,eur,currency,users.username,clients.created_at from clients 
 			left join users on users.id = clients.user_id
 			where user_id = $1 order by created_at desc`
 	rows, err := repository.client.Query(q, id)
@@ -72,7 +72,7 @@ func (repository *Repository) GetOwnClients(id int) ([]models.Client, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var client models.Client
-		err = rows.Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency, &client.ReceivedName)
+		err = rows.Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency, &client.ReceivedName, &client.CreatedDate)
 		if err != nil {
 			return nil, err
 		}
@@ -83,10 +83,10 @@ func (repository *Repository) GetOwnClients(id int) ([]models.Client, error) {
 }
 func (repository *Repository) SearchClient(passport string) (models.Client, error) {
 	var client models.Client
-	q := `select user_id,name,passport,usd,eur,currency,users.username from clients
+	q := `select user_id,name,passport,usd,eur,currency,users.username,clients.created_at from clients
 			left join users on users.id = clients.user_id
 			where passport = $1 limit 1`
-	err := repository.client.QueryRow(q, passport).Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency, &client.ReceivedName)
+	err := repository.client.QueryRow(q, passport).Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency, &client.ReceivedName, &client.CreatedDate))
 	if err != nil {
 		return client, err
 	}

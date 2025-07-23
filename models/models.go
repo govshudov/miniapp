@@ -8,6 +8,7 @@ type Client struct {
 	EUR          float64 `json:"eur"`
 	Currency     string  `json:"currency"`
 	ReceivedName string  `json:"received_name"`
+	CreatedDate  string  `json:"created_date"`
 }
 type Login struct {
 	UserName string `json:"username"`
