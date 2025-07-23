@@ -86,7 +86,7 @@ func (repository *Repository) SearchClient(passport string) (models.Client, erro
 	q := `select user_id,name,passport,usd,eur,currency,users.username,clients.created_at from clients
 			left join users on users.id = clients.user_id
 			where passport = $1 limit 1`
-	err := repository.client.QueryRow(q, passport).Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency, &client.ReceivedName, &client.CreatedDate))
+	err := repository.client.QueryRow(q, passport).Scan(&client.UserId, &client.Name, &client.Passport, &client.USD, &client.EUR, &client.Currency, &client.ReceivedName, &client.CreatedDate)
 	if err != nil {
 		return client, err
 	}
