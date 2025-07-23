@@ -48,8 +48,8 @@ func initDb() (*sql.DB, error) {
 	var err error
 	dbHost := "localhost"
 	dbPort := "5432"
-	dbUser := "postgres"
-	dbPassword := ""
+	dbUser := "miniapp"
+	dbPassword := "miniapp"
 	dbName := "postgres"
 	connectTimeOut := 5
 
